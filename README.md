@@ -1,3 +1,7 @@
+## Link to our Presentation
+We were unable to upload it as a file to this repo due to size constrains
+[Carter Ondc 2k25 PPT](https://drive.google.com/file/d/1Z1gMegdcnhhDJHM4bma3ZpmolLy9R183/view?usp=sharing)
+
 # What is our Approach?
 - Why WhatsApp
 - Onboarding Customer
