@@ -71,6 +71,7 @@ Sellers are prompted to upload documents and provide legal information based on 
 - FSSAI license for food-related businesses
 
 Once the seller provides the required details, the bot automatically submits them to the relevant authorities for approval, ensuring a seamless onboarding process.
+![](onbording.png)
 
 ## Creating Inventory
 
@@ -113,6 +114,16 @@ Step-by-Step Process:
 - Input Parsing: The agent parses the user's input using natural language processing (NLP) techniques
 - Entity Validation: It checks if the extracted entity matches the type of information requested
 - Recursive Interaction: The agent repeats the process until it obtains the required data
+
+### DEMO
+## whatsapp demo
+![](demo.png)
+
+## customer data saving in database
+![](customerdata.jpg)
+
+## Prodcut Data in Firebase Data Base
+![](firebase.jpg)
 
 ## Agents for 4 Types of Stores
 
@@ -234,8 +245,11 @@ Reduce reliance on external dependencies and make the platform more cost-effecti
 ### The Road Ahead
 By focusing on voice-enabled tools, language accessibility, and AI independence, we aim to create a holistic, cost-efficient, and inclusive ecosystem that empowers sellers of all scales. These initiatives align with our commitment to digitizing India's markets while keeping them rooted in their unique diversity.
 
-Follow these steps to set up and run the project locally:
+![](futureroadmap.png)
 
+
+Follow these steps to set up and run the project locally:
+![](techstack.png)
 ### 1. Set Up a Facebook Developer App  
 1. Create a developer account on [Facebook for Developers](https://developers.facebook.com/).  
 2. Set up a new app and generate an access token.  
