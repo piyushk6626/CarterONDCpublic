@@ -2,7 +2,7 @@
 Webhook handler for the Cart-ONDC application.
 
 This module provides the API endpoints for handling WhatsApp webhook requests,
-including message processing and store registration workflows.
+including message processing, store registration workflows, and inventory creation.
 """
 
 from flask import Flask, request, jsonify, Blueprint
@@ -14,6 +14,17 @@ from cart_ondc.services.messaging import wait_for_reply, conversation_manager
 from cart_ondc.store_types.store_type import store_type_manager
 from cart_ondc.registration.registration_factory import RegistrationFactory
 from cart_ondc.core.database import db_manager
+from cart_ondc.inventory_creation.ICconversation_handler import ask_question
+from cart_ondc.inventory_creation.ICdatabase_opration import add_product
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
+from pydantic import BaseModel
+
+# Load environment variables
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
 
 # Create a Blueprint for the webhook routes
 webhook_bp = Blueprint('webhook', __name__)
@@ -48,7 +59,7 @@ def handle_webhook(path):
     Handle incoming webhook requests from the WhatsApp Business API.
     
     This function processes incoming messages, manages store registration,
-    and handles other WhatsApp interactions.
+    inventory creation, and handles other WhatsApp interactions.
     
     Args:
         path (str): The path of the request
@@ -129,11 +140,68 @@ def handle_webhook(path):
                             )
         else:
             # User is already verified, handle regular interactions
-            # TODO: Implement logic for handling interactions with verified users
-            whatsapp_service.send_message(
-                "Welcome back! How can I assist you today?", 
-                contact_wa_id
-            )
+            # Get the message content
+            message_text = data.get('entry', [])[0].get('changes', [])[0].get('value', {}).get('messages', [])[0].get('text', {}).get('body', '').lower()
+            
+            # Check if this is an inventory creation request
+            if message_text.startswith('add product') or message_text.startswith('create product'):
+                # Start inventory creation flow
+                whatsapp_service.send_message(
+                    "Let's create a new product for your inventory. I'll ask you some questions to get started.",
+                    contact_wa_id
+                )
+                
+                # Define the Pydantic model for product data
+                class ProductData(BaseModel):
+                    has_answer: bool
+                    product_name: str
+                    
+                # Ask for product name
+                product_name_response = ask_question(
+                    client=client,
+                    question="What is the name of your product?",
+                    response_format_class=ProductData,
+                    prompt="Extract the product name from the user's response.",
+                    bool_attribute="has_answer",
+                    max_attempts=3
+                )
+                
+                if product_name_response and product_name_response.has_answer:
+                    # More product information can be collected here
+                    # For simplicity, we'll just create a basic product
+                    
+                    # Create product data
+                    product_data = {
+                        "id": f"prod_{int(time.time())}",
+                        "name": product_name_response.product_name,
+                        "seller_id": contact_wa_id,
+                        "created_at": time.time()
+                    }
+                    
+                    # Add product to database
+                    success = add_product(product_data)
+                    
+                    if success:
+                        whatsapp_service.send_message(
+                            f"Your product '{product_name_response.product_name}' has been added to your inventory!",
+                            contact_wa_id
+                        )
+                    else:
+                        whatsapp_service.send_message(
+                            "Sorry, there was an error adding your product. Please try again later.",
+                            contact_wa_id
+                        )
+                else:
+                    whatsapp_service.send_message(
+                        "I couldn't get the product name. Let's try again later.",
+                        contact_wa_id
+                    )
+            else:
+                # Default response for verified users
+                whatsapp_service.send_message(
+                    "Welcome back! How can I assist you today? You can say 'add product' to create a new inventory item.",
+                    contact_wa_id
+                )
     
     except Exception as e:
         print(f"Error processing webhook: {e}")

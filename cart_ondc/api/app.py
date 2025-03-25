@@ -7,6 +7,7 @@ blueprints and routes.
 
 from flask import Flask, jsonify
 from cart_ondc.api.webhook import register_webhook
+from cart_ondc.api.inventory import register_inventory
 
 def create_app():
     """
@@ -19,6 +20,7 @@ def create_app():
     
     # Register blueprints
     register_webhook(app)
+    register_inventory(app)  # Register the inventory blueprint
     
     # Root route for health check
     @app.route('/', methods=['GET'])
