@@ -141,4 +141,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgements
 
 - Open Network for Digital Commerce (ONDC) for providing the framework for digital commerce in India.
-- WhatsApp Business API for enabling business-customer communications.
+- WhatsApp Business API for enabling business-customer communications. 
